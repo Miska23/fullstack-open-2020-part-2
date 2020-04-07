@@ -1,16 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 
 const Persons = ({persons, searchText}) => {
 
-console.log("props.persons before filtering is ", persons);
-
+/* console.log("from Persons: props.persons before filtering is ", persons);
+ */
 const filterContacts = (array, searchValue) => {
     return array.filter((person) => person.name.toLowerCase().includes(searchValue.toLowerCase()))
     }   
 
   const filtered = filterContacts(persons, searchText);
 
-  console.log("props.persons after filtering is ", filtered);
+/*   console.log("from Persons: props.persons after filtering is ", filtered); */
   
     return (
       <div>
@@ -63,21 +64,26 @@ const FilterForm = ({handleSearchChange, searchText}) => {
 
   
 const App = () => {
-  const [ persons, setPersons] = useState([
-    {name: 'Miska Lindén', number: '666', id:'Miska Lindén'},
-    {name: 'Ville Lindén', number: '777', id: 'Ville Lindén'},
-    {name: 'Leena Lindén', number: '999', id: 'Leena Lindén'}
-  ]) 
+  const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('') 
   const [ newNumber, setNewNumber ] = useState('') 
-
   const [ searchText, setSearchText ] = useState('') 
 
-  console.log("persons-state is now: ", persons);
+  useEffect(() => {
+    console.log('From useEffect: effect fired')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        console.log('From useEffect: promise fulfilled')
+        setPersons(response.data)
+      })
+  }, [])
+
+/*   console.log("persons-state is now: ", persons);
   console.log("newName-state is now: ", newName);
   console.log("newNumber-state is now: ", newNumber);
   console.log("searchText is now: ", searchText);
-  
+ */
   //! olion lisäys
   const addContact = (event) => {
       event.preventDefault()

@@ -6,37 +6,16 @@ import CountryDisplay from './components/CountryDisplay'
 const App = () => {
   const [ countries, setCountries ] = useState([])
   const [searchTerm, setSearchTerm] = useState('');
-  const [ weather, setWeather ] = useState([]);
 
   useEffect(() => {
-    console.log('From useEffect: effect fired')
+    console.log('From App.js / useEffect (restcountries.eu): effect fired')
     axios
       .get('https://restcountries.eu/rest/v2/all')
       .then(response => {
-        console.log('From useEffect: promise fulfilled')
-        console.log(response.data);
+        console.log('From App.js / useEffect (restcountries.eu):: promise fulfilled')
         setCountries(response.data);
       })
   }, [])
-
-
-  //! Tämä alemmas puussa
-const api_key = process.env.REACT_APP_API_KEY
-
-let city = 'helsinki';
-
-useEffect(() => {
-  console.log('From useEffect / weatherstack: effect fired')
-  axios
-    .get(`http://api.weatherstack.com/current?access_key=${api_key}&query=${city}`)
-    .then(response => {
-      console.log('From useEffect / weatherstack: promise fulfilled')
-      console.log(response);
-      setWeather(response.data)
-    })
-}, [])
-
-
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);

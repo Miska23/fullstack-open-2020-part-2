@@ -9,7 +9,6 @@ const FormElement = (props) => {
           type='text'  
           onChange={props.changeHandler}
           value={props.value}
-          submitText={props.submitText}
         />
       </label>
       {props.children}

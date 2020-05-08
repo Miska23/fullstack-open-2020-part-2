@@ -1,14 +1,12 @@
-//TODO: siirrä komponentit omiin tiedostoihinsa
-//TODO: kokeile tehdä yksi Form-komponentti, joka osaa 
-//TODO: renderöidä kaksi erinäköistä formia annettujen tietojen perusteella (https://reactjs.org/docs/composition-vs-inheritance.html)
+//TODO: muuta persons Contacts-nimiseksi
 //TODO: tee tietojen tallennus palvelimelle (2.15)
 //TODO: palvelinkommunikaatio omaan moduuliin (2.16)
 //TODO:  tietojen poistamistoiminto palvelimelta (2.17)
 //TODO: PUT-pyyntö jossa tulee ilmoitus mikäli olem. olevan henkilön numeroa yritetään vaihtaa (2.18)
 
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 
+import Contacts from './services/Contacts'
 import FilterForm from './components/FilterForm'
 import PersonForm from './components/PersonForm'
 import PersonsDisplay from './components/PersonsDisplay'
@@ -20,18 +18,14 @@ const App = () => {
   const [ searchText, setSearchText ] = useState('') 
 
   useEffect(() => {
-    console.log('From useEffect: effect fired')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('From useEffect: promise fulfilled')
-        setPersons(response.data)
+    console.log('from App.js/uEf/1, uEf Started');    
+    Contacts
+      .getAll()
+      .then(initialContacts => {
+        setPersons(initialContacts)
       })
+      console.log('from App.js/uEf/1, uEf finished');
   }, [])
-
-  console.log("newName-state is now: ", newName);
-  console.log("newNumber-state is now: ", newNumber);
-  console.log("searchText is now: ", searchText);
  
   //! olion lisäys
   const addContact = (event) => {
@@ -41,15 +35,23 @@ const App = () => {
         number: newNumber,
         id: newName
       }       
-      const newPersons = [...persons, personObject]
-      if(!persons.some(person => person.name === newName)) {
+/*    if(!persons.some(person => person.name === newName)) {
         setPersons(newPersons);
       } else {
         alert(`${newName} is already added to phonebook`)
-      }  
-      setNewName('');
-      setNewNumber('');
+      }   */
+      Contacts
+      .create(personObject)
+      .then(returnedContact => {
+        console.log('returnedContact is :', returnedContact);
+/*         const newPersons = [...persons, returnedContact]; */
+/*         setPersons(newPersons)
+        setPersons([...persons, returnedContact]) //! onko OK vai pitääkö tehdä  kuten yllä?
+ */        setNewName('');
+        setNewNumber('');
+      })
   }
+  
 
   //! lomakkeen toiminta 
   const handleNameChange = (event) => {

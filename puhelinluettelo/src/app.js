@@ -1,68 +1,18 @@
+//TODO: siirrä komponentit omiin tiedostoihinsa
+//TODO: kokeile tehdä yksi Form-komponentti, joka osaa 
+//TODO: renderöidä kaksi erinäköistä formia annettujen tietojen perusteella (https://reactjs.org/docs/composition-vs-inheritance.html)
+//TODO: tee tietojen tallennus palvelimelle (2.15)
+//TODO: palvelinkommunikaatio omaan moduuliin (2.16)
+//TODO:  tietojen poistamistoiminto palvelimelta (2.17)
+//TODO: PUT-pyyntö jossa tulee ilmoitus mikäli olem. olevan henkilön numeroa yritetään vaihtaa (2.18)
+
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const Persons = ({persons, searchText}) => {
+import FilterForm from './components/FilterForm'
+import PersonForm from './components/PersonForm'
+import PersonsDisplay from './components/PersonsDisplay'
 
-/* console.log("from Persons: props.persons before filtering is ", persons);
- */
-const filterContacts = (array, searchValue) => {
-    return array.filter((person) => person.name.toLowerCase().includes(searchValue.toLowerCase()))
-    }   
-
-  const filtered = filterContacts(persons, searchText);
-
-/*   console.log("from Persons: props.persons after filtering is ", filtered); */
-  
-    return (
-      <div>
-        <ul style={{listStyleType: "none"}}>
-          {filtered.map(person => 
-            <li key={person.id}>
-              {person.name} {' '}
-              {person.number}
-            </li>
-          )}
-        </ul>
-      </div>
-    )
-}
-
-const PersonForm = ({addContact, newName, newNumber, handleNameChange, handleNumberChange}) => {
-    return  (
-      <form onSubmit={addContact}>
-        <div> name: 
-          <input 
-            value={newName}
-            onChange={handleNameChange}    
-          />
-        </div>
-        <div> number: 
-          <input 
-            value={newNumber}
-            onChange={handleNumberChange}
-          />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-    )
-}
-
-const FilterForm = ({handleSearchChange, searchText}) => {
-    return (
-      <form onSubmit={(event) => event.preventDefault()}>
-      <div> filter shown with 
-        <input  
-          onChange={handleSearchChange}
-          value={searchText}
-        />
-      </div>
-    </form> 
-    )
-}
-
-  
 const App = () => {
   const [ persons, setPersons] = useState([]) 
   const [ newName, setNewName ] = useState('') 
@@ -79,11 +29,10 @@ const App = () => {
       })
   }, [])
 
-/*   console.log("persons-state is now: ", persons);
   console.log("newName-state is now: ", newName);
   console.log("newNumber-state is now: ", newNumber);
   console.log("searchText is now: ", searchText);
- */
+ 
   //! olion lisäys
   const addContact = (event) => {
       event.preventDefault()
@@ -120,7 +69,6 @@ const App = () => {
         handleSearchChange={handleSearchChange}
         searchText={searchText}
       />
-      <h3>Add a new contact</h3>
       <PersonForm 
         newName={newName} 
         newNumber={newNumber}
@@ -128,10 +76,12 @@ const App = () => {
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange}
       /> 
-      <h3>Numbers</h3>
-      <Persons persons={persons} searchText={searchText}/>
+      <PersonsDisplay persons={persons} searchText={searchText}/>
     </div>
   )
+
 }
 
 export default App 
+
+

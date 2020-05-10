@@ -29,27 +29,4 @@ const PersonForm = (props) => {
   )
 }
 
-
 export default PersonForm 
-
-/* return  (
-    
-  <form onSubmit={props.addContact}>
-    <label>Name: 
-      <input 
-        type='text'
-        value={props.newName}
-        onChange={props.handleNameChange}    
-      />
-    </label>
-    <label>Number:
-      <input 
-        type='text'
-        value={props.newNumber}
-        onChange={props.handleNumberChange}
-      />
-    </label>
-     <input type="submit" value='Add'/>
-  </form>
-)
-} */

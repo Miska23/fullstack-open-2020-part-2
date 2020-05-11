@@ -2,7 +2,7 @@ import React from 'react'
 
 import FormElement from './Shared/FormElement'
 
-const PersonForm = (props) => {
+const ContactForm = (props) => {
 
   return (
     <>
@@ -29,4 +29,4 @@ const PersonForm = (props) => {
   )
 }
 
-export default PersonForm 
+export default ContactForm 

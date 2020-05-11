@@ -14,18 +14,3 @@ const FilterForm = ({handleSearchChange, searchText}) => {
 }
 
 export default FilterForm 
-
-/* const FilterForm = ({handleSearchChange, searchText}) => {
-  return (
-    <form onSubmit={event => event.preventDefault()}>
-    <label> filter shown with 
-      <input
-        type='text'  
-        onChange={handleSearchChange}
-        value={searchText}
-      />
-    </label>
-  </form> 
-  )
-}
- */

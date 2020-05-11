@@ -1,81 +1,107 @@
-//TODO: muuta persons Contacts-nimiseksi
-//TODO: PUT-pyyntö jossa tulee ilmoitus mikäli olem. olevan henkilön numeroa yritetään vaihtaa (2.18)
-
+//TODO: periaatteessa valmis, mutta tsekkaa vielä catchien paikka ja logiikka sekä sen yhteydessä tehtävä setContacts
+//TODO: sekä se että toimiiko ilmoituksen tyylin muuttaminen varmasti joka kerta kun pitäisi
 import React, { useState, useEffect } from 'react'
 
-import Contacts from './services/Contacts'
+import ContactService from './services/ContactService'
 import FilterForm from './components/FilterForm'
-import PersonForm from './components/PersonForm'
-import PersonsDisplay from './components/PersonsDisplay'
+import ContactForm from './components/ContactForm'
+import ContactsDisplay from './components/ContactsDisplay'
+import Notification from './components/Shared/Notification'
 
 const App = () => {
-  const [ persons, setPersons] = useState([]) 
+  const [ contacts, setContacts] = useState([]) 
   const [ newName, setNewName ] = useState('') 
   const [ newNumber, setNewNumber ] = useState('') 
   const [ searchText, setSearchText ] = useState('') 
-
-  console.log('from App.js/global/1, persons is now:', persons)
+  const [message, setMessage] = useState(null)
+  const [errorStatus, setErrorStatus] = useState(false)
 
   useEffect(() => {
     console.log('from App.js/uEf/1, uEf Started');    
-    Contacts
+    ContactService
       .getAll()
       .then(initialContacts => {
-        setPersons(initialContacts)
+        setContacts(initialContacts)
       })
       console.log('from App.js/uEf/1, uEf finished');
   }, [])
  
-  //! olion lisäys
-  //! tee kirjasinkoon ignoraus!
+  //! uuden lisäys ja olemassaolevan päivittäminen (saman lomakkeen kautta)
   const addContact = (event) => {
       event.preventDefault()
-      const personObject = {
+      const contactObject = {
         name: newName,
         number: newNumber,
         id: Math.random()
       }       
-    if (persons.some(person => person.name === newName)) { //! tähän kohtaan päivitystoiminto
+      let foundContact = contacts.find(contact => contact.name === newName);
+    if (foundContact) { 
       window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)
-      let foundPerson = persons.find(person => person.name === newName)
-      let id = foundPerson.id
+      let id = foundContact.id
       console.log('from addContact() / update / 1, id is: ', id);
-      Contacts
-        .update(id, personObject)
+      ContactService
+        .update(id, contactObject)
         .then(returnedContact => {
           console.log('from App.js/addContact() / update 2, returnedContact is :', returnedContact);
-          setPersons(persons.map(person => person.id !== id ? person : returnedContact)) //! tilan päivittäminen then-blockin sisällä - voisiko tehdä jälkeen vasta 
-       })
+          setContacts(contacts.map(contact => contact.id !== id ? contact : returnedContact))
+          setMessage(`Contact ${newName} in the phonebook was updated`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+        })
+        .catch(errоr => {
+          setErrorStatus(true);
+          setMessage(`Contact ${newName} was not found on the server`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+          setContacts(contacts.filter(contact => contact.id !== id))
+        })
       } else {
-      Contacts
-       .create(personObject)
+      ContactService
+       .create(contactObject)
        .then(returnedContact => {
          console.log('from App.js/addContact()/1, returnedContact is :', returnedContact);
-         setPersons([...persons, returnedContact]) //! tilan päivittäminen then-blockin sisällä - voisiko tehdä jälkeen vasta 
-         console.log('from App.js/addContact()/2, persons is now:', persons)
+         setContacts([...contacts, returnedContact]) 
+         console.log('from App.js/addContact()/2, contacts is now:', contacts)
+         setMessage(`Contact ${newName} was added to the phonebook`)
+         setTimeout(() => {
+           setMessage(null)
+         }, 5000)
       })
     }
     setNewName('');
     setNewNumber('');
+    setErrorStatus(false);
   }
 
-
-  //! poisto toimii jos sivun päivittää mutta delete-pyynnön vastauksessa ei ole 
-  //! tietoja poistetusta tai poistettavasta oliosta!
-  const deleteContact = (personToDelete) => {
-    console.log('from deleteContact() / 1, personToDelete is:', personToDelete);
-    if (persons.some(person => person.id === personToDelete.id)) {
-      window.confirm(`Delete ${personToDelete.name} ?`)
-       Contacts
-       .deleteContact(personToDelete.id)
+  //! poistaminen
+  const removeContact = (contactToDelete) => {
+    console.log('from deleteContact() / 1, contactToDelete is:', contactToDelete);
+    if (contacts.some(contact => contact.id === contactToDelete.id)) {
+      window.confirm(`Delete ${contactToDelete.name} ?`)
+       ContactService
+       .deleteContact(contactToDelete.id)
        .then(() => {
-         const updatedPersons = persons.filter(person => person.id !== personToDelete.id)
-        setPersons(updatedPersons) 
-      }) 
-    } 
+         const updatedContacts = contacts.filter(contact => contact.id !== contactToDelete.id)
+        setContacts(updatedContacts)
+        setMessage(`Contact ${contactToDelete.name} was deleted from the phonebook`)
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
+        })
+        .catch(errоr => {
+          setErrorStatus(true);
+          setMessage(`Contact ${contactToDelete.name} was not found on the server`)
+          setTimeout(() => {
+            setMessage(null)
+          }, 5000)
+          setContacts(contacts.filter(contact => contact.id !== contactToDelete.id))
+        })
+    }
   }
   
-  //! lomakkeen toiminta 
+  //! lomakkeiden toiminta 
   const handleNameChange = (event) => {
       setNewName(event.target.value)        
   }
@@ -89,25 +115,28 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification 
+        message={message}
+        errorStatus={errorStatus}
+        />
       <FilterForm 
         handleSearchChange={handleSearchChange}
         searchText={searchText}
       />
-      <PersonForm 
+      <ContactForm 
         newName={newName} 
         newNumber={newNumber}
         addContact={addContact}
         handleNameChange={handleNameChange}
         handleNumberChange={handleNumberChange}
       /> 
-      <PersonsDisplay 
-        persons={persons} 
+      <ContactsDisplay 
+        contacts={contacts} 
         searchText={searchText}
-        deleteContact={deleteContact}
+        removeContact={removeContact}
         />
     </div>
   )
-
 }
 
 export default App 

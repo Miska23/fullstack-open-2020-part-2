@@ -34,28 +34,29 @@ const App = () => {
       }       
       let foundContact = contacts.find(contact => contact.name === newName);
     if (foundContact) { 
-      window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)
       let id = foundContact.id
       console.log('from addContact() / update / 1, id is: ', id);
-      ContactService
-        .update(id, contactObject)
-        .then(returnedContact => {
-          console.log('from App.js/addContact() / update 2, returnedContact is :', returnedContact);
-          setContacts(contacts.map(contact => contact.id !== id ? contact : returnedContact))
-          setMessage(`Contact ${newName} in the phonebook was updated`)
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-        })
-        .catch(errоr => {
-          setErrorStatus(true);
-          setMessage(`Contact ${newName} was not found on the server`)
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
-          setContacts(contacts.filter(contact => contact.id !== id))
-        })
-      } else {
+        if (window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)) {
+          ContactService
+            .update(id, contactObject)
+            .then(returnedContact => {
+              console.log('from App.js/addContact() / update 2, returnedContact is :', returnedContact);
+              setContacts(contacts.map(contact => contact.id !== id ? contact : returnedContact))
+              setMessage(`Contact ${newName} in the phonebook was updated`)
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
+            })
+            .catch(errоr => {
+              setErrorStatus(true);
+              setMessage(`Contact ${newName} was not found on the server`)
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
+              setContacts(contacts.filter(contact => contact.id !== id))
+            })
+        }
+    } else {
       ContactService
        .create(contactObject)
        .then(returnedContact => {
@@ -76,7 +77,7 @@ const App = () => {
   const removeContact = (contactToDelete) => {
     console.log('from deleteContact() / 1, contactToDelete is:', contactToDelete);
     if (contacts.some(contact => contact.id === contactToDelete.id)) {
-      window.confirm(`Delete ${contactToDelete.name} ?`)
+      if (window.confirm(`Delete ${contactToDelete.name} ?`)) {
        ContactService
        .deleteContact(contactToDelete.id)
        .then(() => {
@@ -95,6 +96,7 @@ const App = () => {
           }, 5000)
           setContacts(contacts.filter(contact => contact.id !== contactToDelete.id))
         })
+      }  
     }
   }
   

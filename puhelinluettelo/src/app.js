@@ -26,7 +26,6 @@ const App = () => {
       console.log('from App.js/uEf/1, uEf finished');
   }, [])
  
-  //! uuden lisäys ja olemassaolevan päivittäminen (saman lomakkeen kautta)
   const addContact = (event) => {
       event.preventDefault()
       const contactObject = {
@@ -75,7 +74,6 @@ const App = () => {
     setErrorStatus(false);
   }
 
-  //! poistaminen
   const removeContact = (contactToDelete) => {
     console.log('from deleteContact() / 1, contactToDelete is:', contactToDelete);
     if (contacts.some(contact => contact.id === contactToDelete.id)) {
@@ -101,7 +99,6 @@ const App = () => {
     }
   }
   
-  //! lomakkeiden toiminta 
   const handleNameChange = (event) => {
       setNewName(event.target.value)        
   }

@@ -9,9 +9,9 @@ const getAll = () => {
 }
 
 const create = newObject => {
-  const request = axios.post(baseUrl, newObject) //! request on promise
+  const request = axios.post(baseUrl, newObject) 
   console.log('from ContactService.js/create/1, request is :' , request);
-  return request.then(response => response.data) //! toinen promise ekalle promiselle
+  return request.then(response => response.data) 
 }
 
 const update = (id, newObject) => {

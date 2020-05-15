@@ -6,7 +6,6 @@ const CountryDisplay = ({countries, searchTerm}) => {
   return (
     <div>
       {searchTerm !== '' &&        
-      //! jos hakutermi ei ole tyhjä merkkijono (muulloin tyhjä div):
         <CountryList 
           countries={countries}
           searchTerm={searchTerm}

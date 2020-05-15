@@ -19,6 +19,3 @@ const WeatherDisplay = ({ capital, weather }) => {
 } 
 
 export default WeatherDisplay
-
-/* {weather.weather_icons.map(icon => <img src={icon} alt="Weather_icon" height="80" width="80"></img>)}
- */

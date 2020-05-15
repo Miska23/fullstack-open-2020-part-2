@@ -1,5 +1,4 @@
-//TODO: periaatteessa valmis, mutta tsekkaa vielä catchien paikka ja logiikka sekä sen yhteydessä tehtävä setContacts
-//TODO: sekä se että toimiiko ilmoituksen tyylin muuttaminen varmasti joka kerta kun pitäisi
+
 import React, { useState, useEffect } from 'react'
 
 import ContactService from './services/ContactService'

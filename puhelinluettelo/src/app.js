@@ -29,8 +29,7 @@ const App = () => {
       event.preventDefault()
       const contactObject = {
         name: newName,
-        number: newNumber,
-        id: Math.random()
+        number: newNumber
       }       
       let foundContact = contacts.find(contact => contact.name === newName);
     if (foundContact) { 

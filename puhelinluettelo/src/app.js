@@ -14,7 +14,9 @@ const App = () => {
   const [ searchText, setSearchText ] = useState('') 
   const [message, setMessage] = useState(null)
   const [errorStatus, setErrorStatus] = useState(false)
-
+  
+  console.log('testikomento build-skriptejä varten');
+  
   useEffect(() => {
     console.log('from App.js/uEf/1, uEf Started');    
     ContactService

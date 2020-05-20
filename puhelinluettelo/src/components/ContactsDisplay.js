@@ -17,7 +17,7 @@ const ContactsDisplay = ({contacts, searchText, removeContact}) => {
             <li>
               {contact.name} {' '}
               {contact.number} {' '}
-            <button onClick={() => removeContact(contact)}>delete</button>
+            <button onClick={() => removeContact(contact.id)}>delete</button>
             </li>
           </div>
           )}

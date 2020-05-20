@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 
 import ContactService from './services/ContactService'
@@ -12,11 +11,8 @@ const App = () => {
   const [ newName, setNewName ] = useState('') 
   const [ newNumber, setNewNumber ] = useState('') 
   const [ searchText, setSearchText ] = useState('') 
-  const [message, setMessage] = useState(null)
-  const [errorStatus, setErrorStatus] = useState(false)
-  
-  console.log('testikomento build-skriptejä varten');
-  
+  const [notification, setNotification] = useState(null)
+    
   useEffect(() => {
     console.log('from App.js/uEf/1, uEf Started');    
     ContactService
@@ -26,80 +22,70 @@ const App = () => {
       })
       console.log('from App.js/uEf/1, uEf finished');
   }, [])
+
+  const showNotification = (message, classSelector='success') => {
+    setNotification({ message, classSelector })
+    setTimeout(() => {
+      setNotification(null)
+    }, 5000)
+  }
  
   const addContact = (event) => {
-      event.preventDefault()
-      const contactObject = {
-        name: newName,
-        number: newNumber
-      }       
-      let foundContact = contacts.find(contact => contact.name === newName);
+    event.preventDefault()
+
+    const foundContact = contacts.find(contact => contact.name === newName)
     if (foundContact) { 
-      let id = foundContact.id
-      console.log('from addContact() / update / 1, id is: ', id);
-        if (window.confirm(`${newName} is already in the phonebook, replace the old number with a new one?`)) {
+      const acceptUpdating = window.confirm(`${foundContact.name} already in phonebook, replace the old number with new one?`)
+        if (acceptUpdating) {
           ContactService
-            .update(id, contactObject)
-            .then(returnedContact => {
+            .update(foundContact.id, {
+              name: foundContact.name,
+              number: newNumber
+            }).then(returnedContact => {
               console.log('from App.js/addContact() / update 2, returnedContact is :', returnedContact);
-              setContacts(contacts.map(contact => contact.id !== id ? contact : returnedContact))
-              setMessage(`Contact ${newName} in the phonebook was updated`)
-              setTimeout(() => {
-                setMessage(null)
-              }, 5000)
-            })
-            .catch(errоr => {
-              setErrorStatus(true);
-              setMessage(`Contact ${newName} was not found on the server`)
-              setTimeout(() => {
-                setMessage(null)
-              }, 5000)
-              setContacts(contacts.filter(contact => contact.id !== id))
+              setContacts(contacts.map(contact => contact.id !== returnedContact.id ? contact : returnedContact))
+              showNotification(`Contact ${newName} in the phonebook was updated`)
+            }).catch(errоr => {  //! mongoosen validointierror, jos tulee kahden selaimen virhe, ohjelma kaatuu
+              const {err: errorMessage} = errоr.response.data
+              showNotification(`${errorMessage}`, 'error')
             })
         }
+
     } else {
       ContactService
-       .create(contactObject)
-       .then(returnedContact => {
-         console.log('from App.js/addContact()/1, returnedContact is :', returnedContact);
-         setContacts([...contacts, returnedContact]) 
+       .create({
+         name: newName,
+         number: newNumber
+       })
+       .then(addedContact => {
+         console.log('from App.js/addContact()/1, returnedContact is :', addedContact);
+         setContacts([...contacts, addedContact]) 
          console.log('from App.js/addContact()/2, contacts is now:', contacts)
-         setMessage(`Contact ${newName} was added to the phonebook`)
-         setTimeout(() => {
-           setMessage(null)
-         }, 5000)
+         showNotification(`Contact ${newName} was added to the phonebook`)
+      }).catch(error => { 
+        const {err: errorMessage} = error.response.data
+        showNotification(`${errorMessage}`, 'error')
       })
     }
     setNewName('');
-    setNewNumber('');
-    setErrorStatus(false);
+    setNewNumber('');  
   }
 
-  const removeContact = (contactToDelete) => {
-    console.log('from deleteContact() / 1, contactToDelete is:', contactToDelete);
-    if (contacts.some(contact => contact.id === contactToDelete.id)) {
-      if (window.confirm(`Delete ${contactToDelete.name} ?`)) {
-       ContactService
-       .deleteContact(contactToDelete.id)
-       .then(() => {
-         const updatedContacts = contacts.filter(contact => contact.id !== contactToDelete.id)
-        setContacts(updatedContacts)
-        setMessage(`Contact ${contactToDelete.name} was deleted from the phonebook`)
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
-        })
-        .catch(errоr => {
-          setErrorStatus(true);
-          setMessage(`Contact ${contactToDelete.name} was not found on the server`)
-          setTimeout(() => {
-            setMessage(null)
-          }, 5000)
+  const removeContact = (id) => {
+    console.log('from deleteContact() / 1, id is:', id);
+    const contactToDelete = contacts.find(contact => contact.id === id)
+    const acceptDeleting = window.confirm(`Delete ${contactToDelete.name}`)
+    if (acceptDeleting) {
+       ContactService.deleteContact(contactToDelete.id)
+        .then(() => {
           setContacts(contacts.filter(contact => contact.id !== contactToDelete.id))
+          showNotification(`Contact ${contactToDelete.name} was deleted from the phonebook`)
+        }).catch(errоr => {
+          setContacts(contacts.filter(contact => contact.id !== contactToDelete.id))
+          showNotification(`Contact ${contactToDelete.name} was not found on the server`, 'error')
         })
       }  
     }
-  }
   
   const handleNameChange = (event) => {
       setNewName(event.target.value)        
@@ -115,8 +101,7 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <Notification 
-        message={message}
-        errorStatus={errorStatus}
+        notification={notification}
         />
       <FilterForm 
         handleSearchChange={handleSearchChange}
@@ -141,3 +126,7 @@ const App = () => {
 export default App 
 
 
+              //! kontakteihin muut kuin se jota yritettiin päivittää poistamisen jälkeen,
+              //! jolloin lista päivittyy vastaamaan palvelimen oikeaa tilaa
+              /* setContacts(contacts.filter(contact => contact.id !== foundContact.id))
+              showNotification(`Contact ${newName} was not found on the server`, 'error') */
